@@ -53,7 +53,7 @@
         {% if entryDescription is empty %}
             {% set entryDescription = entry['entry.description_safe']|default('') %}
         {% endif %}
-        
+
         {% set timeData = {
             'description': entryDescription,
             'duration': entry['entry.duration']|default(entry.duration|default(0)),

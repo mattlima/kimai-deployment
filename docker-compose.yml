@@ -1,3 +1,4 @@
+# The following line is only required for old installations
 # version: "3.7"
 
 services:
@@ -9,44 +10,43 @@ services:
       - "443:443"
     volumes:
       - caddy_data:/data
-      - ./caddy_config:/config
-      - ./caddy_config/Caddyfile:/etc/caddy/Caddyfile
+      - ${DATA_FOLDER}/caddy_config:/config
+      - ${DATA_FOLDER}/caddy_config/Caddyfile:/etc/caddy/Caddyfile
 
   sqldb:
-    image: mysql:8.3
-    volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    command: --default-storage-engine innodb
-    restart: unless-stopped
-    healthcheck:
-      test: mysqladmin -p${MYSQL_ROOT_PASSWORD} ping -h localhost
-      interval: 20s
-      start_period: 10s
-      timeout: 10s
-      retries: 3
+      image: mysql:8.3
+      volumes:
+          - mysql_data:/var/lib/mysql
+      environment:
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+          - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      command: --default-storage-engine innodb
+      restart: unless-stopped
+      healthcheck:
+          test: mysqladmin -p${MYSQL_ROOT_PASSWORD} ping -h localhost
+          interval: 20s
+          start_period: 10s
+          timeout: 10s
+          retries: 3
 
   kimai:
-    build: .
-    image: custom-kimai:latest
-    volumes:
-      - kimai_data:/opt/kimai/var/data
-      - kimai_plugins:/opt/kimai/var/plugins
-      - ./kimai_config/local.yaml:/opt/kimai/config/packages/local.yaml
-      - ./invoices:/opt/kimai/var/invoices
-    ports:
-      - 8888:8001
-    environment:
-      - ADMINMAIL=${KIMAI_USER}
-      - ADMINPASS=${KIMAI_PASSWORD}
-      - "DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@sqldb/${MYSQL_DATABASE}?charset=utf8mb4&serverVersion=8.3.0"
-      - TRUSTED_HOSTS=localhost|127.0.0.1|${SUBDOMAIN}.${DOMAIN_NAME}
-      - TZ=${TIMEZONE}
-    restart: unless-stopped
+      image: kimai/kimai2:apache
+      volumes:
+          - kimai_data:/opt/kimai/var/data
+          - kimai_plugins:/opt/kimai/var/plugins
+          - ${DATA_FOLDER}/kimai_config/local.yaml:/opt/kimai/config/packages/local.yaml
+          - ${DATA_FOLDER}/kimai_config/transfer:/opt/kimai/var/transfer
+      ports:
+          - 8001:8001
+      environment:
+          - ADMINMAIL=${KIMAI_USER}
+          - ADMINPASS=${KIMAI_PASSWORD}
+          - "DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@sqldb/${MYSQL_DATABASE}?charset=utf8mb4&serverVersion=8.3.0"
+          - TRUSTED_HOSTS=localhost|127.0.0.1|${SUBDOMAIN}.${DOMAIN_NAME}
+          - TZ=${TIMEZONE}
+      restart: unless-stopped
 
 volumes:
   caddy_data:

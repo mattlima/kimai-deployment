@@ -1,31 +1,7 @@
-admin:
-  email: ${ADMINMAIL}
-  password: ${ADMINPASS}
+# You can add custom Kimai configurations in this file
+# see https://www.kimai.org/documentation/local-yaml.html
 
-database:
-  driver: mysql
-  host: sqldb
-  port: 3306
-  dbname: ${MYSQL_DATABASE}
-  user: ${MYSQL_USER}
-  password: ${MYSQL_PASSWORD}
-
-# Custom settings for the Kimai application
-settings:
-  timezone: ${TIMEZONE}
-  currency: EUR
-  default_language: en
-  enable_invoice: true
-  enable_expense: true
-  enable_projects: true
-  enable_customers: true
-  enable_tags: true
-  enable_activities: true
-  enable_timesheets: true
-  enable_notifications: true
-
-# Additional custom configurations can be added below
-custom:
-  logo: /path/to/custom/logo.png
-  theme: dark
-  custom_css: /path/to/custom/styles.css
+kimai:
+    defaults:
+        customer:
+            currency: USD

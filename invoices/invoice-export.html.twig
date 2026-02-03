@@ -1,0 +1,73 @@
+{#
+  JSON Export Template
+  - Outputs raw JSON for external processing
+  - Adapts to Kimai's HTML renderer variable structure
+#}
+{% set data = {
+    'invoice': {
+        'number': invoice['invoice.number']|default(invoice.invoiceNumber|default('')),
+        'date': invoice['invoice.date']|default(invoice.date|default('')|date('Y-m-d')),
+        'currency': invoice['invoice.currency']|default(invoice.currency|default('')),
+        'total': invoice['invoice.total_plain']|default(invoice.total|default(0)),
+        'subtotal': invoice['invoice.subtotal_plain']|default(0),
+        'tax': invoice['invoice.tax_plain']|default(0),
+        'paymentTerms': invoice['template.payment_terms']|default(invoice.paymentTerms|default('30')),
+        'issuer': {
+            'name': invoice['issuer.name']|default(invoice.company.name|default('')),
+            'address': invoice['issuer.address']|default(invoice.company.address|default('')),
+            'email': invoice['issuer.email']|default(''),
+            'company': invoice['issuer.company']|default('')
+        },
+        'customer': {
+            'name': invoice['customer.name']|default(invoice.customer.name|default('')),
+            'company': invoice['customer.company']|default(invoice.customer.company|default('')),
+            'address': invoice['customer.address']|default(invoice.customer.address|default('')),
+            'email': invoice['customer.email']|default('')
+        }
+    },
+    'items': []
+} %}
+
+{% set items = [] %}
+
+{% for entry in entries %}
+    {# Check if we have a grouped structure (like in the PDF template) #}
+    {% if entry.times is defined %}
+        {% for time in entry.times %}
+             {% set timeData = {
+                'description': time.description|default(''),
+                'duration': time.duration|default(0),
+                'rate': time.rate|default(0),
+                'amount': time.amount|default(0),
+                'project': entry.project.name|default(''),
+                'activity': time.activity.name|default(''),
+                'date': time.date|date('Y-m-d')
+            } %}
+            {% set items = items|merge([timeData]) %}
+        {% endfor %}
+
+    {# Check for flat structure (standard HTML renderer) #}
+    {% else %}
+        {# Use entry.description if set, otherwise fall back to entry.description_safe (which defaults to activity name) #}
+        {% set entryDescription = entry['entry.description']|default('')|trim %}
+        {% if entryDescription is empty %}
+            {% set entryDescription = entry['entry.description_safe']|default('') %}
+        {% endif %}
+        
+        {% set timeData = {
+            'description': entryDescription,
+            'duration': entry['entry.duration']|default(entry.duration|default(0)),
+            'rate': entry['entry.rate_plain']|default(entry.rate|default(0)),
+            'amount': entry['entry.total_plain']|default(entry.amount|default(0)),
+            'project': entry['entry.project']|default(entry.project.name|default('')),
+            'activity': entry['entry.activity']|default(entry.activity.name|default('')),
+            'date': entry['entry.date']|default(entry.date|default('')|date('Y-m-d')),
+            'user': entry['entry.user_alias']|default(entry['entry.user_name']|default(''))
+        } %}
+        {% set items = items|merge([timeData]) %}
+    {% endif %}
+{% endfor %}
+
+{% set data = data|merge({'items': items}) %}
+
+{{ data|json_encode|raw }}

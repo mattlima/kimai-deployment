@@ -1,0 +1,29 @@
+# Caddyfile configuration for the Kimai application
+
+# Define the site and its root
+${SUBDOMAIN}.${DOMAIN_NAME} {
+    # Enable HTTPS automatically
+    tls ${SSL_EMAIL}
+
+    # Set the root directory for the Kimai application
+    root * /opt/kimai/public
+
+    # Handle requests to the Kimai application
+    try_files {path} /index.php?{query}
+
+    # PHP handling
+    php_fastcgi unix//run/php/php7.4-fpm.sock
+
+    # Enable logging
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+
+    # Handle errors
+    handle_errors {
+        respond "An error occurred" 500
+    }
+
+    # Additional configurations can be added here
+}

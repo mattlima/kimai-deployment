@@ -1,0 +1,166 @@
+{#
+  Harvest-style invoice template for Kimai 2.46.0
+  - Grouped by project only
+  - Decimal hours
+  - Subtotals only
+  - USD currency
+  - No taxes
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            font-size: 10pt;
+            color: #000;
+        }
+
+        h1 {
+            font-size: 20pt;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .meta-table td {
+            vertical-align: top;
+            padding-bottom: 12px;
+        }
+
+        .meta-label {
+            font-weight: bold;
+        }
+
+        .right {
+            text-align: right;
+        }
+
+        .invoice-table th {
+            border-bottom: 1px solid #000;
+            padding-bottom: 6px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .invoice-table th.amount,
+        .invoice-table td.amount {
+            text-align: right;
+        }
+
+        .invoice-table td {
+            padding: 8px 0;
+            vertical-align: top;
+        }
+
+        .project-line {
+            font-weight: bold;
+        }
+
+        .project-detail {
+            font-weight: normal;
+        }
+
+        .total-row td {
+            border-top: 1px solid #000;
+            padding-top: 10px;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+
+        .notes {
+            margin-top: 30px;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            font-size: 8pt;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+<h1>INVOICE</h1>
+
+<table class="meta-table">
+    <tr>
+        <td width="50%">
+            <div class="meta-label">From</div>
+            {{ invoice.company.name }}<br>
+            {{ invoice.company.address|nl2br }}
+        </td>
+        <td width="50%">
+            <div class="meta-label">Invoice For</div>
+            {{ invoice.customer.name }}<br>
+            {{ invoice.customer.address|nl2br }}
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="meta-label">Date</div>
+            {{ invoice.date|date_short }}
+        </td>
+        <td>
+            <div class="meta-label">Invoice ID</div>
+            {{ invoice.invoiceNumber }}
+        </td>
+    </tr>
+</table>
+
+<br><br>
+
+<table class="invoice-table">
+    <thead>
+        <tr>
+            <th width="50%">Description</th>
+            <th width="15%" class="amount">Hours</th>
+            <th width="15%" class="amount">Rate</th>
+            <th width="20%" class="amount">Total</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for entry in entries %}
+        <tr class="project-line">
+            <td colspan="4">{{ entry.project.name }}</td>
+        </tr>
+        {% for time in entry.times %}
+        <tr class="project-detail">
+            <td>{{ time.description|default('Service') }}</td>
+            <td class="amount">{{ time.duration|duration_decimal }}</td>
+            <td class="amount">{{ time.rate|money(invoice.currency) }}</td>
+            <td class="amount">{{ time.amount|money(invoice.currency) }}</td>
+        </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr class="total-row">
+            <td colspan="3" class="right">Total</td>
+            <td class="amount">{{ invoice.total|money(invoice.currency) }}</td>
+        </tr>
+    </tfoot>
+</table>
+
+{% if invoice.paymentTerms %}
+<div class="notes">
+    <strong>Terms:</strong><br>
+    {{ invoice.paymentTerms|nl2br }}
+</div>
+{% endif %}
+
+<div class="footer">
+    Page <pageno/>
+</div>
+
+</body>
+</html>

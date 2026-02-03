@@ -22,11 +22,11 @@ docker compose up -d --remove-orphans
 
 # 4. Run database migrations
 echo "Running migrations..."
-docker compose exec -T kimai bin/console doctrine:migrations:migrate --no-interaction
+docker compose exec -T kimai /opt/kimai/bin/console doctrine:migrations:migrate --no-interaction
 
 # 5. Clear Kimai cache (Crucial for templates)
 echo "Clearing Kimai cache..."
-docker compose exec -T -u www-data kimai bin/console cache:clear
-docker compose exec -T -u www-data kimai bin/console cache:warmup
+docker compose exec -T -u www-data kimai /opt/kimai/bin/console cache:clear
+docker compose exec -T -u www-data kimai /opt/kimai/bin/console cache:warmup
 
 echo "Deployment complete!"

@@ -3,6 +3,22 @@
   - Outputs raw JSON for external processing
   - Adapts to Kimai's HTML renderer variable structure
 #}
+
+{# Build a lookup map of project ID to order number from invoice-level data #}
+{% set projectOrderNumbers = {} %}
+{# First project (no index) #}
+{% if invoice['project.id'] is defined and invoice['project.order_number'] is defined %}
+    {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice['project.id']): invoice['project.order_number']}) %}
+{% endif %}
+{# Subsequent projects (indexed 1, 2, 3, etc.) #}
+{% for i in 1..20 %}
+    {% set idKey = 'project.' ~ i ~ '.id' %}
+    {% set orderKey = 'project.' ~ i ~ '.order_number' %}
+    {% if invoice[idKey] is defined and invoice[orderKey] is defined %}
+        {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice[idKey]): invoice[orderKey]}) %}
+    {% endif %}
+{% endfor %}
+
 {% set data = {
     'invoice': {
         'number': invoice['invoice.number']|default(invoice.invoiceNumber|default('')),
@@ -22,6 +38,7 @@
             'name': invoice['customer.name']|default(invoice.customer.name|default('')),
             'company': invoice['customer.company']|default(invoice.customer.company|default('')),
             'address': invoice['customer.address']|default(invoice.customer.address|default('')),
+            'contact': invoice['customer.contact']|default(''),
             'email': invoice['customer.email']|default('')
         }
     },
@@ -33,13 +50,20 @@
 {% for entry in entries %}
     {# Check if we have a grouped structure (like in the PDF template) #}
     {% if entry.times is defined %}
+        {# Build project name with order number prefix if present #}
+        {% set projectName = entry.project.name|default('') %}
+        {% set orderNumber = entry.project.orderNumber|default('')|trim %}
+        {% if orderNumber is not empty %}
+            {% set projectName = '[' ~ orderNumber ~ '] ' ~ projectName %}
+        {% endif %}
+
         {% for time in entry.times %}
              {% set timeData = {
                 'description': time.description|default(''),
                 'duration': time.duration|default(0),
                 'rate': time.rate|default(0),
                 'amount': time.amount|default(0),
-                'project': entry.project.name|default(''),
+                'project': projectName,
                 'activity': time.activity.name|default(''),
                 'date': time.date|date('Y-m-d')
             } %}
@@ -54,12 +78,20 @@
             {% set entryDescription = entry['entry.description_safe']|default('') %}
         {% endif %}
 
+        {# Build project name with order number prefix if present #}
+        {% set projectName = entry['entry.project']|default(entry.project.name|default('')) %}
+        {% set projectId = 'p' ~ entry['entry.project_id']|default('') %}
+        {% set orderNumber = projectOrderNumbers[projectId]|default('')|trim %}
+        {% if orderNumber is not empty %}
+            {% set projectName = '[' ~ orderNumber ~ '] ' ~ projectName %}
+        {% endif %}
+
         {% set timeData = {
             'description': entryDescription,
             'duration': entry['entry.duration']|default(entry.duration|default(0)),
             'rate': entry['entry.rate_plain']|default(entry.rate|default(0)),
             'amount': entry['entry.total_plain']|default(entry.amount|default(0)),
-            'project': entry['entry.project']|default(entry.project.name|default('')),
+            'project': projectName,
             'activity': entry['entry.activity']|default(entry.activity.name|default('')),
             'date': entry['entry.date']|default(entry.date|default('')|date('Y-m-d')),
             'user': entry['entry.user_alias']|default(entry['entry.user_name']|default(''))

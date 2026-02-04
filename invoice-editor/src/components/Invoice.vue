@@ -73,6 +73,8 @@ const jsonInput = ref('')
 const parseError = ref('')
 const invoiceData = ref(null)
 const subject = ref('') // Manually editable field
+const dueDate = ref('') // Editable due date
+const paymentTerms = ref('') // Editable payment terms (e.g., "30 days")
 const editingAmountIndex = ref(null) // Track which item amount is being edited
 
 // Computed properties for template access
@@ -80,27 +82,34 @@ const invoice = computed(() => invoiceData.value?.invoice || null)
 const items = computed(() => invoiceData.value?.items || [])
 const hasData = computed(() => invoice.value !== null && items.value.length > 0)
 
-// Calculate due date by adding paymentTerms (days) to invoice date
-const dueDate = computed(() => {
-    if (!invoice.value?.date || !invoice.value?.paymentTerms) return ''
+// Calculate due date by adding paymentTerms to invoice date
+// If paymentTerms is 30, add 1 month instead of 30 days
+const calculateDueDate = (invoiceDate, paymentTerms) => {
+    if (!invoiceDate || !paymentTerms) return ''
 
     // Parse date (assuming M/D/YYYY format)
-    const dateParts = invoice.value.date.split('/')
-    if (dateParts.length !== 3) return invoice.value.date
+    const dateParts = invoiceDate.split('/')
+    if (dateParts.length !== 3) return invoiceDate
 
     const month = parseInt(dateParts[0], 10)
     const day = parseInt(dateParts[1], 10)
     const year = parseInt(dateParts[2], 10)
 
     const issueDate = new Date(year, month - 1, day)
-    const days = parseInt(invoice.value.paymentTerms, 10) || 0
+    const days = parseInt(paymentTerms, 10) || 0
 
     const due = new Date(issueDate)
-    due.setDate(due.getDate() + days)
+    
+    if (days === 30) {
+        // Add 1 month instead of 30 days
+        due.setMonth(due.getMonth() + 1)
+    } else {
+        due.setDate(due.getDate() + days)
+    }
 
     // Format back to M/D/YYYY
     return `${due.getMonth() + 1}/${due.getDate()}/${due.getFullYear()}`
-})
+}
 
 // Roll up items by project
 const rollUpByProject = (items) => {
@@ -207,6 +216,13 @@ const parseJson = () => {
         parsed.invoice.total = subtotal + (parseFloat(parsed.invoice.tax) || 0)
 
         invoiceData.value = parsed
+        
+        // Calculate initial due date
+        dueDate.value = calculateDueDate(parsed.invoice.date, parsed.invoice.paymentTerms)
+        
+        // Set payment terms with "days" appended
+        const terms = parsed.invoice.paymentTerms || ''
+        paymentTerms.value = terms ? `${terms} days` : ''
     } catch (e) {
         parseError.value = e.message
         invoiceData.value = null
@@ -223,6 +239,8 @@ const resetInvoice = () => {
     invoiceData.value = null
     parseError.value = ''
     subject.value = ''
+    dueDate.value = ''
+    paymentTerms.value = ''
 }
 
 const formatCurrency = (value) => {
@@ -297,13 +315,6 @@ const recalculateTotal = () => {
 
                 <div class="invoice-title-section">
                     <h1>INVOICE</h1>
-                    <div class="from-details">
-                        <div class="label">From</div>
-                        <div class="address-block">
-                            <strong>{{ invoice.issuer.name }}</strong><br>
-                            {{ invoice.issuer.address }}
-                        </div>
-                    </div>
                 </div>
             </header>
 
@@ -325,13 +336,16 @@ const recalculateTotal = () => {
                     </div>
                     <div class="meta-row">
                         <span class="label">Due Date</span>
-                        <span class="value">{{ dueDate }}</span>
+                        <span class="value">
+                            <input type="text" v-model="dueDate" class="editable-input"
+                                placeholder="M/D/YYYY" />
+                        </span>
                     </div>
                     <div class="meta-row">
                         <span class="label">Terms</span>
                         <span class="value">
-                            <input type="text" v-model="invoiceData.invoice.paymentTerms"
-                                class="editable-input editable-input--small" /> days
+                            <input type="text" v-model="paymentTerms" class="editable-input"
+                                placeholder="30 days" />
                         </span>
                     </div>
                     <div class="meta-row">
@@ -343,11 +357,22 @@ const recalculateTotal = () => {
                     </div>
                 </div>
 
-                <div class="bill-to">
-                    <div class="label">Invoice For</div>
-                    <div class="address-block">
-                        <strong>{{ invoice.customer.name }}</strong><br>
-                        {{ invoice.customer.address }}
+                <div class="addresses-column">
+                    <div class="address-section">
+                        <div class="address-label">From</div>
+                        <div class="address-content">
+                            <strong>{{ invoice.issuer.name?.trim() }}</strong><br>
+                            {{ invoice.issuer.address?.trim() }}
+                        </div>
+                    </div>
+                    <div class="address-section">
+                        <div class="address-label">Invoice For</div>
+                        <div class="address-content">
+                            <strong>{{ invoice.customer.name?.trim() }}</strong><br>
+                            {{ invoice.customer.address?.trim() }}<br>
+                            <template v-if="invoice.customer.contact?.trim()">{{ invoice.customer.contact?.trim() }}<br></template>
+                            <template v-if="invoice.customer.email?.trim()">{{ invoice.customer.email?.trim() }}</template>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -363,7 +388,7 @@ const recalculateTotal = () => {
                         <input type="text" v-model="item.description"
                             class="editable-input editable-input--full item-title-input" placeholder="Description" />
                         <input type="text" v-model="item.activity"
-                            class="editable-input editable-input--full item-subtitle-input" placeholder="Activity" />
+                            class="editable-input editable-input--full item-subtitle-input" />
                     </div>
                     <div class="col-amount">
                         <span v-if="editingAmountIndex !== index" @click="editingAmountIndex = index"
@@ -530,8 +555,8 @@ const recalculateTotal = () => {
 }
 
 .logo-img {
-    max-width: 200px;
-    /* Adjust based on actual logo size */
+    max-width: 140px;
+    /* Reduced by 30% from 200px */
     height: auto;
     display: block;
 }
@@ -543,22 +568,34 @@ const recalculateTotal = () => {
 h1 {
     font-size: 20px;
     font-weight: 500;
-    margin: 0 0 15px 0;
+    margin: 0;
     text-transform: uppercase;
     color: #333;
 }
 
-.from-details {
+.addresses-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.address-section {
     display: flex;
     gap: 20px;
-    text-align: left;
     font-size: 12px;
 }
 
-.from-details .label {
+.address-label {
+    width: 80px;
+    text-align: left;
     color: #888;
-    width: 40px;
-    text-align: right;
+    flex-shrink: 0;
+}
+
+.address-content {
+    text-align: left;
+    white-space: pre-wrap;
+    line-height: 1.4;
 }
 
 .label {
@@ -569,6 +606,7 @@ h1 {
 .details-row {
     display: flex;
     justify-content: space-between;
+    gap: 40px;
     margin-bottom: 50px;
 }
 
@@ -586,6 +624,7 @@ h1 {
 
 .meta-row .label {
     width: 80px;
+    flex-shrink: 0;
 }
 
 .meta-row .value {
@@ -594,6 +633,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 4px;
+    flex: 1;
 }
 
 /* Editable Input Styles */
@@ -606,7 +646,8 @@ h1 {
     background: transparent;
     padding: 2px 4px;
     margin: -2px -4px;
-    min-width: 120px;
+    width: 100%;
+    min-width: 0;
     transition: all 0.2s;
 }
 
@@ -634,21 +675,6 @@ h1 {
 .editable-input::placeholder {
     color: #bbb;
     font-style: italic;
-}
-
-.bill-to {
-    display: flex;
-    gap: 20px;
-    text-align: left;
-    font-size: 12px;
-    flex: 1;
-    justify-content: flex-end;
-    /* Align to right side area */
-}
-
-.bill-to .label {
-    width: 70px;
-    text-align: right;
 }
 
 .items-table {
@@ -848,8 +874,8 @@ strong {
     .invoice-container {
         padding: 0;
         margin: 0;
-        width: 100%;
-        max-width: none;
+        width: 670px;
+        max-width: 670px;
     }
 
     .table-row:hover {

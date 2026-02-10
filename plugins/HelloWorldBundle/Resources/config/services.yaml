@@ -4,6 +4,6 @@ services:
         autoconfigure: true
         public: false
 
-    KimaiPlugin\HelloWorldBundle\Controller\:
-        resource: '../../Controller'
+    KimaiPlugin\HelloWorldBundle\Controller\HelloWorldController:
+        public: true
         tags: ['controller.service_arguments']

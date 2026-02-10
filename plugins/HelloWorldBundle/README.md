@@ -21,7 +21,8 @@ HelloWorldBundle/
 │   └── HelloWorldController.php  # Main controller with route handler
 ├── Resources/
 │   ├── config/
-│   │   └── routes.yaml           # Route configuration (YAML-based routing)
+│   │   ├── routes.yaml           # Route configuration (YAML-based routing)
+│   │   └── services.yaml         # Service definitions for dependency injection
 │   └── views/
 │       └── hello.html.twig        # Template for displaying lorem ipsum
 ├── HelloWorldBundle.php           # Main bundle class implementing PluginInterface

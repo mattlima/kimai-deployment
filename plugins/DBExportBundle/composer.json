@@ -1,0 +1,20 @@
+{
+    "name": "kimai/db-export-bundle",
+    "description": "Database export plugin for Kimai - allows administrators to download MySQL database dumps",
+    "type": "kimai-plugin",
+    "license": "MIT",
+    "require": {
+        "kimai/kimai2-composer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "KimaiPlugin\\DBExportBundle\\": ""
+        }
+    },
+    "extra": {
+        "kimai": {
+            "name": "DBExportBundle",
+            "require": 20000
+        }
+    }
+}

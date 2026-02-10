@@ -10,7 +10,8 @@ plugins/HelloWorldBundle/
 │   └── HelloWorldController.php    # Route handler
 ├── Resources/
 │   ├── config/
-│   │   └── routes.yaml              # Route configuration
+│   │   ├── routes.yaml              # Route configuration
+│   │   └── services.yaml            # Service definitions
 │   └── views/
 │       └── hello.html.twig          # Template
 ├── HelloWorldBundle.php             # Main bundle class
@@ -46,6 +47,7 @@ Using `docker compose exec kimai /opt/kimai/bin/console debug:router hello_world
 - Plugin files correctly copied to `/opt/kimai/var/plugins/HelloWorldBundle/` in container
 - Bundle class implements PluginInterface
 - composer.json properly configured with Kimai requirements
+- Controller registered as service with autowiring enabled
 
 ### 5. Code Quality ✅
 - Code review completed and feedback addressed
@@ -59,7 +61,22 @@ Using `docker compose exec kimai /opt/kimai/bin/console debug:router hello_world
 - Kimai 2.0+ compatibility (version 20000 in Kimai's integer format)
 - Implements `App\Plugin\PluginInterface`
 - YAML-based routing configuration
+- Service definitions with autowiring for dependency injection
 - Follows Symfony bundle conventions
+
+### Service Configuration
+Controllers are registered as services in `Resources/config/services.yaml`:
+```yaml
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    KimaiPlugin\HelloWorldBundle\Controller\:
+        resource: '../../Controller'
+        tags: ['controller.service_arguments']
+```
 
 ### Route Configuration
 The route is defined in `Resources/config/routes.yaml`:

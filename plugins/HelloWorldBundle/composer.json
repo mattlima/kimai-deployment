@@ -13,7 +13,8 @@
     },
     "extra": {
         "kimai": {
-            "name": "HelloWorldBundle"
+            "name": "HelloWorldBundle",
+            "require": 20000
         }
     }
 }

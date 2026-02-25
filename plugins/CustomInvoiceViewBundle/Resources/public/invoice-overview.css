@@ -1,0 +1,224 @@
+/* Invoice Overview Custom Styles */
+
+/* Year Switcher */
+.year-switcher {
+    margin-top: -2px;
+}
+
+.year-switcher .btn {
+    font-weight: 600;
+}
+
+/* Summary Cards */
+.summary-cards {
+    margin-bottom: 28px;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+.summary-cards > [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.summary-cards .info-box {
+    min-height: 88px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+    margin-bottom: 12px;
+}
+
+.summary-cards .info-box-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin-left: 12px;
+    border-radius: 12px;
+    font-size: 24px;
+    background: rgba(255,255,255,0.18);
+}
+
+.summary-cards .info-box-content {
+    padding: 14px 18px;
+}
+
+.summary-cards .info-box-text {
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+}
+
+.summary-cards .info-box-number {
+    font-size: 23px;
+    font-weight: 700;
+}
+
+/* Chart Container */
+.chart-container {
+    background: #fff;
+    padding: 16px 18px 12px;
+    border-radius: 10px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+}
+
+/* Invoice List */
+.invoice-list {
+    margin-top: 20px;
+}
+
+.invoice-list h4 {
+    margin-bottom: 12px;
+    color: #d8d8d8;
+    font-weight: 600;
+}
+
+.invoice-list table {
+    background: #1f1f1f;
+    color: #e6e6e6;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.16);
+}
+
+.invoice-list table thead {
+    background: #2a2a2a;
+}
+
+.invoice-list table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: #bdbdbd;
+    border-bottom: 1px solid #3a3a3a;
+}
+
+.invoice-list table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.invoice-list table tbody tr:hover {
+    background-color: #2f2f2f;
+}
+
+.invoice-list table td {
+    border-top: 1px solid #2a2a2a;
+}
+
+/* Status Badges */
+.badge {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 3px;
+}
+
+.badge-success {
+    background-color: #00a65a;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-info {
+    background-color: #00c0ef;
+    color: white;
+}
+
+.badge-danger {
+    background-color: #dd4b39;
+    color: white;
+}
+
+.badge-default {
+    background-color: #d2d6de;
+    color: #444;
+}
+
+/* Loading State */
+.text-center {
+    text-align: center;
+}
+
+.fa-spinner {
+    color: #3c8dbc;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .year-switcher {
+        margin-top: 10px;
+    }
+
+    .summary-cards .col-md-4 {
+        margin-bottom: 15px;
+    }
+
+    .chart-container {
+        height: 300px !important;
+    }
+
+    .invoice-list table {
+        font-size: 12px;
+    }
+
+    .invoice-list table th,
+    .invoice-list table td {
+        padding: 8px 4px;
+    }
+}
+
+/* Alert Styling */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-info {
+    background-color: #d9edf7;
+    border-color: #bce8f1;
+    color: #31708f;
+}
+
+.alert-info .fa {
+    margin-right: 8px;
+}
+
+/* Box Tools */
+.box-tools {
+    display: inline-block;
+}
+
+.year-switcher .btn {
+    border-radius: 6px;
+}
+
+.year-switcher .btn + .btn {
+    margin-left: 6px;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.invoice-list table tbody tr {
+    animation: fadeIn 0.3s ease;
+}

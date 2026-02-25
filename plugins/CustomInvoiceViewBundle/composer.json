@@ -1,0 +1,20 @@
+{
+    "name": "kimai/custom-invoice-view-bundle",
+    "description": "Custom Invoice Overview Plugin - Harvest-like invoice dashboard",
+    "type": "kimai-plugin",
+    "require": {
+        "kimai/kimai2-composer": "*"
+    },
+    "extra": {
+        "kimai": {
+            "name": "CustomInvoiceViewBundle",
+            "version": "1.0.0",
+            "require": 20000
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "KimaiPlugin\\CustomInvoiceViewBundle\\": ""
+        }
+    }
+}

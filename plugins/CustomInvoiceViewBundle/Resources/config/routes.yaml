@@ -1,0 +1,7 @@
+custom_invoice_view:
+    path: /invoice-overview
+    controller: KimaiPlugin\CustomInvoiceViewBundle\Controller\CustomInvoiceViewController::index
+
+custom_invoice_view_data:
+    path: /invoice-overview/data
+    controller: KimaiPlugin\CustomInvoiceViewBundle\Controller\CustomInvoiceViewController::data

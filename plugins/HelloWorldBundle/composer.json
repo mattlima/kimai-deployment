@@ -1,0 +1,21 @@
+{
+    "name": "kimai/hello-world-bundle",
+    "description": "A simple Hello World plugin for Kimai",
+    "type": "kimai-plugin",
+    "license": "MIT",
+    "require": {
+        "kimai/kimai2-composer": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "KimaiPlugin\\HelloWorldBundle\\": ""
+        }
+    },
+    "extra": {
+        "kimai": {
+            "name": "HelloWorldBundle",
+            "require": 20000
+        }
+    }
+}
+

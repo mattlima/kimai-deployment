@@ -1,0 +1,3 @@
+db_export_controller:
+    resource: ../../Controller/
+    type: attribute

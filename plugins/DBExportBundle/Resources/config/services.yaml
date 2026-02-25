@@ -1,0 +1,12 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    KimaiPlugin\DBExportBundle\:
+        resource: ../../
+        exclude: ../../{Resources}
+
+    KimaiPlugin\DBExportBundle\Controller\DBExportController:
+        tags: ['controller.service_arguments']

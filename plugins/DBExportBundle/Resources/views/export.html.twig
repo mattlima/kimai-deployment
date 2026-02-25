@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block page_title %}Database Export{% endblock %}
+{% block page_subtitle %}Download MySQL Database Backup{% endblock %}
+
+{% block main %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">Export Database</h3>
+        </div>
+        <div class="box-body">
+            {% if error is defined %}
+                <div class="alert alert-danger">
+                    <i class="fa fa-exclamation-triangle"></i>
+                    {{ error }}
+                </div>
+            {% else %}
+                <p>
+                    <i class="fa fa-info-circle"></i>
+                    This will create a complete SQL dump of the Kimai database and download it to your computer.
+                </p>
+                <p>
+                    <strong>Note:</strong> This feature is only available to administrators. The export may take a few moments depending on the size of your database.
+                </p>
+                
+                <form method="post" action="{{ path('db_export_download') }}" style="margin-top: 20px;">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa fa-download"></i>
+                        Export Database Now
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

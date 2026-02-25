@@ -38,9 +38,9 @@ services:
       image: custom-kimai:latest
       volumes:
           - kimai_data:/opt/kimai/var/data
-          - kimai_plugins:/opt/kimai/var/plugins
           - ${DATA_FOLDER}/kimai_config/local.yaml:/opt/kimai/config/packages/local.yaml
           - ${DATA_FOLDER}/invoices:/opt/kimai/var/invoices
+          - ${DATA_FOLDER}/plugins:/opt/kimai/var/plugins
       ports:
           - 8888:8001
       environment:
@@ -55,8 +55,6 @@ volumes:
   caddy_data:
     external: true
   kimai_data:
-    external: true
-  kimai_plugins:
     external: true
   mysql_data:
     external: true

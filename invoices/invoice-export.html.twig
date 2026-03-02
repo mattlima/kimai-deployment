@@ -7,15 +7,30 @@
 {# Build a lookup map of project ID to order number from invoice-level data #}
 {% set projectOrderNumbers = {} %}
 {# First project (no index) #}
-{% if invoice['project.id'] is defined and invoice['project.order_number'] is defined %}
-    {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice['project.id']): invoice['project.order_number']}) %}
+{% if invoice['project.id'] is defined %}
+    {% set orderNum = invoice['project.order_number']|default('')|trim %}
+    {# Fall back to 'number' field if orderNumber is empty #}
+    {% if orderNum is empty %}
+        {% set orderNum = invoice['project.number']|default('')|trim %}
+    {% endif %}
+    {% if orderNum is not empty and invoice['project.id'] is defined %}
+        {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice['project.id']): orderNum}) %}
+    {% endif %}
 {% endif %}
 {# Subsequent projects (indexed 1, 2, 3, etc.) #}
 {% for i in 1..20 %}
     {% set idKey = 'project.' ~ i ~ '.id' %}
     {% set orderKey = 'project.' ~ i ~ '.order_number' %}
-    {% if invoice[idKey] is defined and invoice[orderKey] is defined %}
-        {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice[idKey]): invoice[orderKey]}) %}
+    {% set numberKey = 'project.' ~ i ~ '.number' %}
+    {% if invoice[idKey] is defined %}
+        {% set orderNum = invoice[orderKey]|default('')|trim %}
+        {# Fall back to 'number' field if orderNumber is empty #}
+        {% if orderNum is empty %}
+            {% set orderNum = invoice[numberKey]|default('')|trim %}
+        {% endif %}
+        {% if orderNum is not empty %}
+            {% set projectOrderNumbers = projectOrderNumbers|merge({('p' ~ invoice[idKey]): orderNum}) %}
+        {% endif %}
     {% endif %}
 {% endfor %}
 
@@ -53,6 +68,10 @@
         {# Build project name with order number prefix if present #}
         {% set projectName = entry.project.name|default('') %}
         {% set orderNumber = entry.project.orderNumber|default('')|trim %}
+        {# Fall back to 'number' field if orderNumber is empty #}
+        {% if orderNumber is empty %}
+            {% set orderNumber = entry.project.number|default('')|trim %}
+        {% endif %}
         {% if orderNumber is not empty %}
             {% set projectName = '[' ~ orderNumber ~ '] ' ~ projectName %}
         {% endif %}

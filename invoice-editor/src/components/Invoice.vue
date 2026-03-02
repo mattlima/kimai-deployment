@@ -99,7 +99,7 @@ const calculateDueDate = (invoiceDate, paymentTerms) => {
     const days = parseInt(paymentTerms, 10) || 0
 
     const due = new Date(issueDate)
-    
+
     if (days === 30) {
         // Add 1 month instead of 30 days
         due.setMonth(due.getMonth() + 1)
@@ -120,10 +120,11 @@ const rollUpByProject = (items) => {
 
         if (!projectMap.has(projectKey)) {
             projectMap.set(projectKey, {
-                project: projectKey,
+                baseProject: projectKey,
                 descriptions: new Set(),
                 amount: 0,
                 rate: item.rate || 0,
+                hours: 0,
                 duration: 0,
                 dates: [],
                 user: item.user || ''
@@ -132,9 +133,19 @@ const rollUpByProject = (items) => {
 
         const entry = projectMap.get(projectKey)
 
-        // Sum amounts and duration
+        // Calculate hours from duration if not provided in item
+        let itemHours = item.hours !== undefined ? parseFloat(item.hours) : (parseFloat(item.duration) || 0) / 3600
+        itemHours = Math.round(itemHours * 10) / 10  // Round to 1 decimal place
+        
+        // Sum amounts, duration, and hours
         entry.amount += parseFloat(item.amount) || 0
         entry.duration += parseFloat(item.duration) || 0
+        entry.hours += itemHours
+        
+        // Keep the rate from the first item (or use the current if first was 0)
+        if (entry.rate === 0) {
+            entry.rate = parseFloat(item.rate) || 0
+        }
 
         // Collect unique descriptions (excluding generic activity names that match the activity field)
         if (item.description) {
@@ -172,13 +183,18 @@ const rollUpByProject = (items) => {
             }
         }
 
+        // Build display with total hours and rate
+        const displayHours = Math.round(entry.hours * 10) / 10  // Ensure 1 decimal place
+        const projectDisplay = `${entry.baseProject} (${displayHours}h) @ $${entry.rate}/hr`
+
         return {
-            description: entry.project,  // Project name on top
-            activity: subtitle,          // Concatenated descriptions below
+            description: projectDisplay,  // Project with total hours and rate
+            activity: subtitle,           // Concatenated descriptions below
             amount: entry.amount,
             rate: entry.rate,
             duration: entry.duration,
-            project: entry.project,
+            hours: entry.hours,
+            project: entry.baseProject,
             date: dateRange,
             user: entry.user
         }
@@ -216,10 +232,10 @@ const parseJson = () => {
         parsed.invoice.total = subtotal + (parseFloat(parsed.invoice.tax) || 0)
 
         invoiceData.value = parsed
-        
+
         // Calculate initial due date
         dueDate.value = calculateDueDate(parsed.invoice.date, parsed.invoice.paymentTerms)
-        
+
         // Set payment terms with "days" appended
         const terms = parsed.invoice.paymentTerms || ''
         paymentTerms.value = terms ? `${terms} days` : ''
@@ -337,15 +353,13 @@ const recalculateTotal = () => {
                     <div class="meta-row">
                         <span class="label">Due Date</span>
                         <span class="value">
-                            <input type="text" v-model="dueDate" class="editable-input"
-                                placeholder="M/D/YYYY" />
+                            <input type="text" v-model="dueDate" class="editable-input" placeholder="M/D/YYYY" />
                         </span>
                     </div>
                     <div class="meta-row">
                         <span class="label">Terms</span>
                         <span class="value">
-                            <input type="text" v-model="paymentTerms" class="editable-input"
-                                placeholder="30 days" />
+                            <input type="text" v-model="paymentTerms" class="editable-input" placeholder="30 days" />
                         </span>
                     </div>
                     <div class="meta-row">
@@ -370,8 +384,10 @@ const recalculateTotal = () => {
                         <div class="address-content">
                             <strong>{{ invoice.customer.name?.trim() }}</strong><br>
                             {{ invoice.customer.address?.trim() }}<br>
-                            <template v-if="invoice.customer.contact?.trim()">{{ invoice.customer.contact?.trim() }}<br></template>
-                            <template v-if="invoice.customer.email?.trim()">{{ invoice.customer.email?.trim() }}</template>
+                            <template v-if="invoice.customer.contact?.trim()">{{ invoice.customer.contact?.trim()
+                                }}<br></template>
+                            <template v-if="invoice.customer.email?.trim()">{{ invoice.customer.email?.trim()
+                                }}</template>
                         </div>
                     </div>
                 </div>
@@ -392,7 +408,8 @@ const recalculateTotal = () => {
                     </div>
                     <div class="col-amount">
                         <span v-if="editingAmountIndex !== index" @click="editingAmountIndex = index"
-                            class="amount-display">{{ formatCurrency(item.amount) }}</span>
+                            class="amount-display">{{
+                            formatCurrency(item.amount) }}</span>
                         <input v-else type="number" v-model.number="item.amount" @input="recalculateTotal"
                             @blur="editingAmountIndex = null" @keyup.enter="editingAmountIndex = null"
                             class="editable-input editable-input--number" placeholder="0" ref="amountInput" autofocus />

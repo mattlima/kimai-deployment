@@ -43,19 +43,19 @@ class DBExportController extends AbstractController
         try {
             // Create the database dump
             $dumpFilePath = $this->dumpService->createDump();
-            
+
             // Create response with the dump file
             $response = new BinaryFileResponse($dumpFilePath);
-            
+
             // Set headers to trigger download
             $response->setContentDisposition(
                 ResponseHeaderBag::DISPOSITION_ATTACHMENT,
                 $this->dumpService->getExportFilename()
             );
-            
+
             // Delete the temp file after sending
             $response->deleteFileAfterSend(true);
-            
+
             return $response;
         } catch (\Exception $e) {
             // Return error page

@@ -17,7 +17,7 @@ class DatabaseDumpService
         // Parse DATABASE_URL environment variable
         // Format: mysql://username:password@host/database?charset=utf8mb4&serverVersion=8.3.0
         $databaseUrl = $_ENV['DATABASE_URL'] ?? '';
-        
+
         if (preg_match('/mysql:\/\/([^:]+):([^@]+)@([^\/]+)\/([^?]+)/', $databaseUrl, $matches)) {
             $this->username = $matches[1];
             $this->password = $matches[2];
@@ -38,7 +38,7 @@ class DatabaseDumpService
     {
         // Create temporary file
         $tempFile = tempnam(sys_get_temp_dir(), 'kimai_db_dump_') . '.sql';
-        
+
         // Build mysqldump command
         $command = [
             'mysqldump',
@@ -54,20 +54,20 @@ class DatabaseDumpService
         // Execute mysqldump
         $process = new Process($command);
         $process->setTimeout(300); // 5 minutes timeout
-        
+
         try {
             $process->mustRun();
-            
+
             // Write output to file
             file_put_contents($tempFile, $process->getOutput());
-            
+
             return $tempFile;
         } catch (ProcessFailedException $exception) {
             // Clean up temp file if it was created
             if (file_exists($tempFile)) {
                 unlink($tempFile);
             }
-            
+
             throw new \RuntimeException(
                 'Database dump failed: ' . $exception->getMessage(),
                 0,

@@ -108,7 +108,7 @@
         {% endif %}
 
         {% set hours = (entry['entry.duration']|default(entry.duration|default(0)) / 3600) | round(1) %}
-        {% set projectNameWithHours = projectName ~ ' (' ~ hours ~ 'h)' %}
+        {% set projectNameWithHours = projectName ~ ' ' ~ hours ~ 'hrs @ ' ~ entry['entry.rate_plain']|default(entry.rate|default(0)) %}
 
         {% set timeData = {
             'description': entryDescription,

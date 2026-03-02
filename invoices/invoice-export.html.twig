@@ -78,13 +78,14 @@
 
         {% for time in entry.times %}
              {% set hours = (time.duration|default(0) / 3600) | round(1) %}
-             {% set projectNameWithHours = projectName ~ ' ' ~ hours ~ 'hrs @ ' ~ time.rate|default(0) %}
+             {% set projectDisplay = projectName ~ ' (' ~ hours ~ 'h)' %}
              {% set timeData = {
                 'description': time.description|default(''),
                 'duration': time.duration|default(0),
                 'rate': time.rate|default(0),
                 'amount': time.amount|default(0),
-                'project': projectNameWithHours,
+                'project': projectName,
+                'projectDisplay': projectDisplay,
                 'activity': time.activity.name|default(''),
                 'date': time.date|date('Y-m-d')
             } %}
@@ -108,14 +109,15 @@
         {% endif %}
 
         {% set hours = (entry['entry.duration']|default(entry.duration|default(0)) / 3600) | round(1) %}
-        {% set projectNameWithHours = projectName ~ ' ' ~ hours ~ 'hrs @ ' ~ entry['entry.rate_plain']|default(entry.rate|default(0)) %}
+        {% set projectDisplay = projectName ~ ' (' ~ hours ~ 'h)' %}
 
         {% set timeData = {
             'description': entryDescription,
             'duration': entry['entry.duration']|default(entry.duration|default(0)),
             'rate': entry['entry.rate_plain']|default(entry.rate|default(0)),
             'amount': entry['entry.total_plain']|default(entry.amount|default(0)),
-            'project': projectNameWithHours,
+            'project': projectName,
+            'projectDisplay': projectDisplay,
             'activity': entry['entry.activity']|default(entry.activity.name|default('')),
             'date': entry['entry.date']|default(entry.date|default('')|date('Y-m-d')),
             'user': entry['entry.user_alias']|default(entry['entry.user_name']|default(''))

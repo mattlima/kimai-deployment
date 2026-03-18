@@ -136,12 +136,12 @@ const rollUpByProject = (items) => {
         // Calculate hours from duration if not provided in item
         let itemHours = item.hours !== undefined ? parseFloat(item.hours) : (parseFloat(item.duration) || 0) / 3600
         itemHours = Math.round(itemHours * 10) / 10  // Round to 1 decimal place
-        
+
         // Sum amounts, duration, and hours
         entry.amount += parseFloat(item.amount) || 0
         entry.duration += parseFloat(item.duration) || 0
         entry.hours += itemHours
-        
+
         // Keep the rate from the first item (or use the current if first was 0)
         if (entry.rate === 0) {
             entry.rate = parseFloat(item.rate) || 0
@@ -385,9 +385,9 @@ const recalculateTotal = () => {
                             <strong>{{ invoice.customer.name?.trim() }}</strong><br>
                             {{ invoice.customer.address?.trim() }}<br>
                             <template v-if="invoice.customer.contact?.trim()">{{ invoice.customer.contact?.trim()
-                                }}<br></template>
+                            }}<br></template>
                             <template v-if="invoice.customer.email?.trim()">{{ invoice.customer.email?.trim()
-                                }}</template>
+                            }}</template>
                         </div>
                     </div>
                 </div>
@@ -409,7 +409,7 @@ const recalculateTotal = () => {
                     <div class="col-amount">
                         <span v-if="editingAmountIndex !== index" @click="editingAmountIndex = index"
                             class="amount-display">{{
-                            formatCurrency(item.amount) }}</span>
+                                formatCurrency(item.amount) }}</span>
                         <input v-else type="number" v-model.number="item.amount" @input="recalculateTotal"
                             @blur="editingAmountIndex = null" @keyup.enter="editingAmountIndex = null"
                             class="editable-input editable-input--number" placeholder="0" ref="amountInput" autofocus />

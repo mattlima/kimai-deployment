@@ -104,16 +104,16 @@ class CustomInvoiceViewController
             // Add customer name
             $customerName = $customers[$invoice['customer_id']] ?? 'Unknown';
 
-            // Add to monthly data
+            // Add to monthly data (only include 'paid' and 'pending' statuses in graph calculations)
             if (isset($monthlyData[$month])) {
                 if ($status === 'paid') {
                     $monthlyData[$month]['paid'] += $amount;
                     $totalPaid += $amount;
-                } else {
-                    // pending, new, or any other status counts as pending
+                } elseif ($status === 'pending') {
                     $monthlyData[$month]['pending'] += $amount;
                     $totalPending += $amount;
                 }
+                // Other statuses (new, canceled, etc.) are excluded from graph calculations
             }
 
             // Add to invoice list

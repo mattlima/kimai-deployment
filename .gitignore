@@ -1,2 +1,3 @@
 seed.sql
 .env
+rclone_config/

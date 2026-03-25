@@ -51,6 +51,24 @@ services:
           - TZ=${TIMEZONE}
       restart: unless-stopped
 
+  backup:
+      build: ./backup
+      image: kimai-backup:latest
+      depends_on:
+          sqldb:
+              condition: service_healthy
+      volumes:
+          - ./rclone_config:/root/.config/rclone
+      environment:
+          - MYSQL_HOST=sqldb
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+          - BACKUP_INTERVAL=86400
+          - RCLONE_REMOTE_NAME=dropbox
+          - RCLONE_REMOTE_PATH=/kimai_backups
+      restart: unless-stopped
+
 volumes:
   caddy_data:
     external: true

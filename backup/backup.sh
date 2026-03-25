@@ -3,7 +3,7 @@
 # Configuration and defaults
 BACKUP_INTERVAL="${BACKUP_INTERVAL:-86400}" # Default is 1 day (86400 seconds)
 BACKUP_DIR="/tmp"
-REMOTE_PATH="${RCLONE_REMOTE_NAME:-dropbox}:${RCLONE_REMOTE_PATH:-/kimai_backups}"
+REMOTE_PATH="${RCLONE_REMOTE_NAME:-Dropbox}:${RCLONE_REMOTE_PATH:-/kimai_backups}"
 MYSQL_HOST="${MYSQL_HOST:-sqldb}"
 
 echo "Starting Kimai backup service..."

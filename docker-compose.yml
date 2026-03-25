@@ -65,7 +65,7 @@ services:
           - MYSQL_PASSWORD=${MYSQL_PASSWORD}
           - MYSQL_DATABASE=${MYSQL_DATABASE}
           - BACKUP_INTERVAL=86400
-          - RCLONE_REMOTE_NAME=dropbox
+          - RCLONE_REMOTE_NAME=Dropbox
           - RCLONE_REMOTE_PATH=/kimai_backups
       restart: unless-stopped
 
